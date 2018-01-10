@@ -7,8 +7,9 @@
 	<select id="getAll" resultType="Member" parameterType="Member">
 		select *
 		from member
-		limit #{page}, #{size}
-		
+		<if test="page != 0 || size != 0">
+			limit #{page},#{size}
+		</if>
 	</select>
 	
 	<select id="getCount" resultType="Member">

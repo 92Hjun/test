@@ -18,8 +18,7 @@ public class MemberServiceImpl implements MemberService{
 
 	@Override
 	public List<Member> getAll(Member member) {
-		System.out.println("xxxx : MemberServiceImpl");
-		
+		System.out.println("xxxx : MemberServiceImpl member /" + member);
 		return memberDAO.getAll(member);
 	}
 

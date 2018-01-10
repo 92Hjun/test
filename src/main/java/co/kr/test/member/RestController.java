@@ -3,8 +3,6 @@ package co.kr.test.member;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import co.kr.test.util.Constants;
 
 @org.springframework.web.bind.annotation.RestController
 public class RestController {
@@ -25,7 +25,7 @@ public class RestController {
 	// method = RequestMethod.GET / value에 작성된 uri로 요청 메소드의 종류를 보내면 GET / POST / DELETE / PUT 등 종류를 알아내어 알맞게 처리함.
 	@RequestMapping(value="/member", method=RequestMethod.GET)
 	public ResponseEntity<List<Member>> getAllMembers() {
-		System.out.println("xxxx : RestController");
+		System.out.println("xxxx : getAllMembers-------------------------------------------------------");
 		
 		System.out.println("xxxx : Member member = new Member();");
 		Member member = new Member();
@@ -52,7 +52,7 @@ public class RestController {
 	// @PathVariable uri에 있는 데이터를 가져와 변수에 담는다. 이때 {이름}과 (@pathVariable int 이름) 
 	// 이름과 이름끼리 같다면 @PathVariable("이름") 이라고 적어줄 필요없이 변수타입과 변수명만 적어주어도 된다.
 	public ResponseEntity<Member> getMemberById(@PathVariable int id) {
-		
+		System.out.println("xxxx : getMemberById-------------------------------------------------------");
 		// @PathVariable로 받은 id를 사용해 id값이 매칭되는 멤버의 데이터를 가져온다.
 		Member member = memberService.getById(id);
 		
@@ -67,7 +67,7 @@ public class RestController {
 	
 	@RequestMapping(value="/member/{id}", method=RequestMethod.DELETE)
 	public ResponseEntity<Member> deleteMemberById(@PathVariable int id){
-		
+		System.out.println("xxxx : deleteMemberById-------------------------------------------------------");
 		// @PathVariable을 사용해 uri에 있는 id값을 가져와 변수에 담은후
 		// id 데이터에 매칭되는 member 데이터를 가져온다.
 		Member member = memberService.getById(id);
@@ -90,6 +90,8 @@ public class RestController {
 	// @RequestBody는 POST로 요청과 함께 들어온 데이터를 가져온 후 객체로 전환되게 하는 어노테이션이다.
 	// UriComponentsBuilder는 객체 내부에 있는 데이터를 Uri로 전환해 응답 uri로 되돌려 보내줄 수 있다.
 	public ResponseEntity<Void> addMember(@RequestBody Member member, UriComponentsBuilder ucBulider){
+		System.out.println("xxxx : addMember-------------------------------------------------------");
+		
 		System.out.println("Creating Member" + member);
 		
 		// 등록하려는 멤버와 같은 멤버가 있으면 true 아니면 false를 반환한다.
@@ -117,6 +119,8 @@ public class RestController {
 	
 	@RequestMapping(value="/member/{id}", method=RequestMethod.PUT)
 	public ResponseEntity<Member> updateMember(@PathVariable int id, @RequestBody Member member) {
+		
+		System.out.println("xxxx : updateMember-------------------------------------------------------");
 		System.out.println("Update Member" + id);
 		
 		// @PathVariable을 사용에 uri상에 있는 id를 받아 데이터를 변경할 member를 찾는다.
@@ -142,28 +146,42 @@ public class RestController {
 	}
 	
 	@RequestMapping(value="/member/{page}/{size}",method=RequestMethod.GET)
-	public ResponseEntity<List<Member>> getList(@PathVariable int page, @PathVariable int size){
-		System.out.println("xxxx : getList");
+	// @PathVariable null이나 공백을 처리못함, 다른타입의 값이 들어오면 Bad Request 오류를 띄움으로 오류페이지를 활용한다.
+	// @RequestParam null이나 공백이 defaultValue로 처리가능함, 대신에 쿼리스트링 ex) /member?page=값&size=값 방식을 사용해야함.
+	public ResponseEntity<List<Member>> getList(@PathVariable("page") int page, @PathVariable("size") int size){
+		System.out.println("xxxx : getList start -------------------------------------------------------");
 		System.out.println("xxxx : page : " +page + ", size : " + size);
-
+		
+		// member 객체를 만든다.
 		Member member = new Member();
+		
+		// @PathVariable로 uri의 page와 size를 받아서 member의 size와 page에 set 시킨다.
+		
 		member.setSize(size);
 		member.setPage(page);
 		
+		// memberService의 getAll로 limit을 활용한 페이징 처리를 한후
+		// 나온 결과값들을 list로 받는다.
 		List<Member> memberList = memberService.getAll(member);
 		
+		// memberList가 비어있을시에 ResponseEntity에 HttpStatus.NOT_FOUND 상태를 담아
+		// 비었음을 상태코드로 응답한다.
+		if (memberList.isEmpty()) {
+			return new ResponseEntity<List<Member>>(HttpStatus.NOT_FOUND);
+		}
+		
+		// memberList가 비어있지 않다면 ResponseEntity에 memberList와 HttpStatus.OK 상태코드를 담아 응답한다.
 		return new ResponseEntity<List<Member>>(memberList,HttpStatus.OK);
 	}
 	
 	@RequestMapping(value="/member/type/{type}/word/{word}", method=RequestMethod.GET)
 	public ResponseEntity<List<Member>> getSearchList(@PathVariable String type, @PathVariable String word) {
-		System.out.println("xxxx : getSearchList");
+		System.out.println("xxxx : getSearchList-------------------------------------------------------");
 		System.out.println("xxxx : type : " + type + ", word : " + word );
 		
 		SearchType search = new SearchType();
 		
-		search.setType(type);
-		search.setWord(word);
+		search.setType((type.trim().equals("") || type.trim().equals(null) ? Constants.DEFAULT_TYPE : type));
 		
 		System.out.println("xxxx : search " + search);
 		

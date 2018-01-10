@@ -5,12 +5,14 @@
 <mapper namespace="Member">
 	
 	<select id="getAll" resultType="Member" parameterType="Member">
-		select 
-			id as id,
-			name as name,
-			belong as belong
-		from 
-			member
+		select *
+		from member
+		<if test="page != 0">
+			limit #{page}, #{size}
+		</if>
+		<if test="size != 0">
+			limit #{page}, #{size}
+		</if>
 	</select>
 	
 	<select id="getCount" resultType="Member">
@@ -72,6 +74,30 @@
 				#{belong}
 			   )
 	</insert>
+	
+	<select id="count" resultType="Integer">
+		select count(*)
+		from member
+	</select>
+	
+	<select id="search" parameterType="co.kr.test.member.SearchType" resultType="Member">
+		select
+			id as id,
+			name as name,
+			belong as belong
+		from
+			member
+		where
+			1=1
+		<choose>
+			<when test="type == 'name'">
+				and name like CONCAT('%',#{word},'%')
+			</when>
+			<when test="type == 'belong'">
+				and belong like CONCAT('%',#{word},'%')
+			</when>
+		</choose>
+	</select>
 	
 	
 </mapper>

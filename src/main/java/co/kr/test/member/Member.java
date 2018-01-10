@@ -2,36 +2,34 @@ package co.kr.test.member;
 
 public class Member {
 	
-	private Integer id, page, size;
+	private int id,page, size;
 	private String name,belong;
 	
-	public Integer getPage() {
+	public int getPage() {
 		return page;
 	}
 
-	public void setPage(Integer page) {
-		if (page <= 0) {
+	public void setPage(int page) {
+		
+		if (page == 0) {
 			page = 1;
 		}
-		this.page = (
-				
-				
-				page-1) * size;
+		this.page = (page - 1) * size;
 	}
 
-	public Integer getSize() {
+	public int getSize() {
 		return size;
 	}
-
-	public void setSize(Integer size) {
+	
+	public void setSize(int size) {
 		this.size = size;
 	}
 
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
@@ -55,7 +53,6 @@ public class Member {
 
 	@Override
 	public String toString() {
-		return "Member [id=" + id + ", name=" + name + ", belong=" + belong + "]";
+		return "Member [id=" + id + ", page=" + page + ", size=" + size + ", name=" + name + ", belong=" + belong + "]";
 	}
-	
 }

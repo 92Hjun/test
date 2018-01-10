@@ -17,7 +17,7 @@ public class MemberDAOImpl implements MemberDAO{
 	@SuppressWarnings("unused")
 	@Override
 	public List<Member> getAll(Member member) {
-		System.out.println("xxxx : MemberDAOImpl");
+		System.out.println("xxxx : MemberDAOImpl member / " + member);
 		
 		return sql.selectList("getAll",member);
 	}
